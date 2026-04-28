@@ -305,9 +305,9 @@ function PlayPage() {
               </Button>
             </div>
 
-            {over && (
-              <Button className="w-full" onClick={analyseGame} disabled={analysing}>
-                {analysing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+            {over && savedGameId && (
+              <Button className="w-full" onClick={goToAnalysis}>
+                <Sparkles className="w-4 h-4" />
                 Analyse game
               </Button>
             )}
@@ -319,25 +319,6 @@ function PlayPage() {
         </div>
       </main>
 
-      <Dialog open={analysisOpen} onOpenChange={setAnalysisOpen}>
-        <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-primary" /> Game analysis
-            </DialogTitle>
-            <DialogDescription>AI coach review of your last game.</DialogDescription>
-          </DialogHeader>
-          {analysing ? (
-            <div className="flex items-center gap-2 py-8 justify-center text-muted-foreground">
-              <Loader2 className="w-4 h-4 animate-spin" /> Analysing your moves…
-            </div>
-          ) : (
-            <div className="prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap text-sm leading-relaxed">
-              {analysis}
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
