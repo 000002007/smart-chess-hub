@@ -41,39 +41,13 @@ function PlayPage() {
   const [status, setStatus] = useState<string>("Your move");
   const [over, setOver] = useState(false);
   const savedRef = useRef(false);
-  const [analysisOpen, setAnalysisOpen] = useState(false);
-  const [analysing, setAnalysing] = useState(false);
-  const [analysis, setAnalysis] = useState<string>("");
+  const [savedGameId, setSavedGameId] = useState<string | null>(null);
 
-  async function analyseGame() {
-    const pgn = gameRef.current.pgn();
-    if (!pgn.trim()) {
-      toast.error("No moves to analyse yet.");
-      return;
-    }
-    setAnalysisOpen(true);
-    setAnalysing(true);
-    setAnalysis("");
-    try {
-      const { data, error } = await supabase.functions.invoke("analyse-game", {
-        body: { pgn },
-      });
-      if (error) throw error;
-      if ((data as any)?.error) throw new Error((data as any).error);
-      setAnalysis((data as any).analysis ?? "No analysis returned.");
-    } catch (e: any) {
-      const msg = e?.message ?? "Failed to analyse game";
-      setAnalysis("");
-      toast.error(msg);
-      if (msg.toLowerCase().includes("rate")) {
-        setAnalysis("Rate limit reached. Please try again in a moment.");
-      } else if (msg.toLowerCase().includes("credit") || msg.toLowerCase().includes("payment")) {
-        setAnalysis("AI credits exhausted. Add credits to your Lovable workspace.");
-      } else {
-        setAnalysis("Something went wrong. " + msg);
-      }
-    } finally {
-      setAnalysing(false);
+  function goToAnalysis() {
+    if (savedGameId) {
+      navigate({ to: "/analysis/$gameId", params: { gameId: savedGameId } });
+    } else {
+      toast.error("Game not saved yet.");
     }
   }
 
