@@ -52,22 +52,28 @@ export type Database = {
       }
       profiles: {
         Row: {
+          city: string | null
           created_at: string
           id: string
+          is_pro: boolean
           rating: number
           updated_at: string
           username: string
         }
         Insert: {
+          city?: string | null
           created_at?: string
           id: string
+          is_pro?: boolean
           rating?: number
           updated_at?: string
           username: string
         }
         Update: {
+          city?: string | null
           created_at?: string
           id?: string
+          is_pro?: boolean
           rating?: number
           updated_at?: string
           username?: string
