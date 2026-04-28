@@ -10,14 +10,20 @@ import { useStockfish } from "@/lib/stockfish";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { RotateCcw, Flag, Cpu, Loader2, Sparkles } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/play")({ component: PlayPage });
 
 const LEVELS = [
-  { label: "Easy", depth: 2 },
-  { label: "Medium", depth: 8 },
-  { label: "Hard", depth: 15 },
+  { label: "1", depth: 1 },
+  { label: "2", depth: 2 },
+  { label: "3", depth: 4 },
+  { label: "4", depth: 6 },
+  { label: "5", depth: 8 },
+  { label: "6", depth: 10 },
+  { label: "7", depth: 12 },
+  { label: "8", depth: 15 },
+  { label: "9", depth: 18 },
+  { label: "10", depth: 22 },
 ];
 
 function PlayPage() {
