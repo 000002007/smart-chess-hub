@@ -1,13 +1,16 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Moon, Sun, LogOut, User as UserIcon, Crown, Users } from "lucide-react";
+import { useState } from "react";
+import { Moon, Sun, LogOut, User as UserIcon, Crown, Users, Trophy, Sparkles } from "lucide-react";
 import { useTheme } from "@/lib/theme";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
+import { ProUpgradeDialog } from "@/components/ProUpgradeDialog";
 
 export function Header() {
   const { theme, toggle } = useTheme();
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const [proOpen, setProOpen] = useState(false);
 
   return (
     <header className="border-b border-border bg-background/80 backdrop-blur-md sticky top-0 z-40">
@@ -25,6 +28,11 @@ export function Header() {
               <Users className="w-4 h-4" /> Multiplayer
             </Button>
           </Link>
+          <Link to="/leaderboard">
+            <Button variant="ghost" size="sm">
+              <Trophy className="w-4 h-4" /> Leaderboard
+            </Button>
+          </Link>
           {user && (
             <Link to="/profile">
               <Button variant="ghost" size="sm">
@@ -32,6 +40,14 @@ export function Header() {
               </Button>
             </Link>
           )}
+          <Button
+            size="sm"
+            variant="outline"
+            className="border-primary/40 text-primary hover:bg-primary/10"
+            onClick={() => setProOpen(true)}
+          >
+            <Sparkles className="w-4 h-4" /> Upgrade to Pro
+          </Button>
           <Button variant="ghost" size="icon" onClick={toggle} aria-label="Toggle theme">
             {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
           </Button>
@@ -46,6 +62,7 @@ export function Header() {
           )}
         </nav>
       </div>
+      <ProUpgradeDialog open={proOpen} onOpenChange={setProOpen} />
     </header>
   );
 }
