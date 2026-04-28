@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as PlayRouteImport } from './routes/play'
 import { Route as MultiplayerRouteImport } from './routes/multiplayer'
+import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as MultiplayerRoomIdRouteImport } from './routes/multiplayer.$roomId'
@@ -29,6 +30,11 @@ const PlayRoute = PlayRouteImport.update({
 const MultiplayerRoute = MultiplayerRouteImport.update({
   id: '/multiplayer',
   path: '/multiplayer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LeaderboardRoute = LeaderboardRouteImport.update({
+  id: '/leaderboard',
+  path: '/leaderboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -50,6 +56,7 @@ const MultiplayerRoomIdRoute = MultiplayerRoomIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/leaderboard': typeof LeaderboardRoute
   '/multiplayer': typeof MultiplayerRouteWithChildren
   '/play': typeof PlayRoute
   '/profile': typeof ProfileRoute
@@ -58,6 +65,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/leaderboard': typeof LeaderboardRoute
   '/multiplayer': typeof MultiplayerRouteWithChildren
   '/play': typeof PlayRoute
   '/profile': typeof ProfileRoute
@@ -67,6 +75,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/leaderboard': typeof LeaderboardRoute
   '/multiplayer': typeof MultiplayerRouteWithChildren
   '/play': typeof PlayRoute
   '/profile': typeof ProfileRoute
@@ -77,6 +86,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/leaderboard'
     | '/multiplayer'
     | '/play'
     | '/profile'
@@ -85,6 +95,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/leaderboard'
     | '/multiplayer'
     | '/play'
     | '/profile'
@@ -93,6 +104,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/auth'
+    | '/leaderboard'
     | '/multiplayer'
     | '/play'
     | '/profile'
@@ -102,6 +114,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
+  LeaderboardRoute: typeof LeaderboardRoute
   MultiplayerRoute: typeof MultiplayerRouteWithChildren
   PlayRoute: typeof PlayRoute
   ProfileRoute: typeof ProfileRoute
@@ -128,6 +141,13 @@ declare module '@tanstack/react-router' {
       path: '/multiplayer'
       fullPath: '/multiplayer'
       preLoaderRoute: typeof MultiplayerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/leaderboard': {
+      id: '/leaderboard'
+      path: '/leaderboard'
+      fullPath: '/leaderboard'
+      preLoaderRoute: typeof LeaderboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -169,6 +189,7 @@ const MultiplayerRouteWithChildren = MultiplayerRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
+  LeaderboardRoute: LeaderboardRoute,
   MultiplayerRoute: MultiplayerRouteWithChildren,
   PlayRoute: PlayRoute,
   ProfileRoute: ProfileRoute,
