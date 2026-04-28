@@ -182,7 +182,7 @@ function PlayPage() {
             <div className="rounded-lg border border-border bg-card p-4 space-y-3">
               <div>
                 <div className="text-xs uppercase tracking-wide text-muted-foreground mb-2">Difficulty</div>
-                <div className="grid grid-cols-5 gap-1">
+                <div className="grid grid-cols-3 gap-1">
                   {LEVELS.map((l, i) => (
                     <button
                       key={l.label}
