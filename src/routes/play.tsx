@@ -77,16 +77,21 @@ function PlayPage() {
     const pgn = gameRef.current.pgn();
     const movesCount = gameRef.current.history().length;
     try {
-      const { error: gErr } = await supabase.from("games").insert({
-        user_id: user.id,
-        result,
-        pgn,
-        player_color: playerColor,
-        moves_count: movesCount,
-        rating_change: ratingChange,
-        ai_level: LEVELS[levelIdx].depth,
-      });
+      const { data: inserted, error: gErr } = await supabase
+        .from("games")
+        .insert({
+          user_id: user.id,
+          result,
+          pgn,
+          player_color: playerColor,
+          moves_count: movesCount,
+          rating_change: ratingChange,
+          ai_level: LEVELS[levelIdx].depth,
+        })
+        .select("id")
+        .single();
       if (gErr) throw gErr;
+      if (inserted?.id) setSavedGameId(inserted.id);
       const { data: prof } = await supabase.from("profiles").select("rating").eq("id", user.id).single();
       if (prof) {
         await supabase.from("profiles").update({ rating: Math.max(100, prof.rating + ratingChange) }).eq("id", user.id);
