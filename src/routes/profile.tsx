@@ -116,12 +116,42 @@ function ProfilePage() {
           </div>
           <div className="flex-1 min-w-[160px]">
             <div className="text-xs uppercase tracking-wider text-muted-foreground">Player</div>
-            <h1 className="text-3xl font-bold tracking-tight">{profile?.username ?? "…"}</h1>
+            <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
+              {profile?.username ?? "…"}
+              {profile?.is_pro && (
+                <span className="inline-flex items-center gap-1 text-xs uppercase tracking-wider bg-primary/10 text-primary px-2 py-0.5 rounded">
+                  <Crown className="w-3 h-3" /> Pro
+                </span>
+              )}
+            </h1>
+            {profile?.city && (
+              <div className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
+                <MapPin className="w-3 h-3" /> {profile.city}
+              </div>
+            )}
           </div>
           <div className="text-right">
             <div className="text-xs uppercase tracking-wider text-muted-foreground">Rating</div>
             <div className="text-4xl font-bold text-primary tabular-nums">{profile?.rating ?? "—"}</div>
           </div>
+        </div>
+
+        {/* City editor */}
+        <div className="rounded-xl border border-border bg-card p-4 mb-6 flex flex-col sm:flex-row sm:items-end gap-3">
+          <div className="flex-1">
+            <label className="text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-1 mb-1">
+              <MapPin className="w-3 h-3" /> Your city
+            </label>
+            <Input
+              value={cityInput}
+              onChange={(e) => setCityInput(e.target.value)}
+              placeholder="e.g. Berlin"
+              maxLength={80}
+            />
+          </div>
+          <Button onClick={saveCity} disabled={savingCity || cityInput.trim() === (profile?.city ?? "")}>
+            <Save className="w-4 h-4" /> {savingCity ? "Saving…" : "Save"}
+          </Button>
         </div>
 
         {/* Stats grid */}
