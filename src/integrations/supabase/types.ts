@@ -74,6 +74,48 @@ export type Database = {
         }
         Relationships: []
       }
+      rooms: {
+        Row: {
+          black_id: string | null
+          created_at: string
+          created_by: string
+          current_fen: string
+          id: string
+          opponent_id: string | null
+          pgn: string
+          result: string | null
+          status: Database["public"]["Enums"]["room_status"]
+          updated_at: string
+          white_id: string | null
+        }
+        Insert: {
+          black_id?: string | null
+          created_at?: string
+          created_by: string
+          current_fen?: string
+          id?: string
+          opponent_id?: string | null
+          pgn?: string
+          result?: string | null
+          status?: Database["public"]["Enums"]["room_status"]
+          updated_at?: string
+          white_id?: string | null
+        }
+        Update: {
+          black_id?: string | null
+          created_at?: string
+          created_by?: string
+          current_fen?: string
+          id?: string
+          opponent_id?: string | null
+          pgn?: string
+          result?: string | null
+          status?: Database["public"]["Enums"]["room_status"]
+          updated_at?: string
+          white_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -83,6 +125,7 @@ export type Database = {
     }
     Enums: {
       game_result: "win" | "loss" | "draw"
+      room_status: "waiting" | "active" | "finished"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -211,6 +254,7 @@ export const Constants = {
   public: {
     Enums: {
       game_result: ["win", "loss", "draw"],
+      room_status: ["waiting", "active", "finished"],
     },
   },
 } as const
