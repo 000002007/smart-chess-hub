@@ -16,6 +16,7 @@ import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as MultiplayerRoomIdRouteImport } from './routes/multiplayer.$roomId'
+import { Route as AnalysisGameIdRouteImport } from './routes/analysis.$gameId'
 
 const ProfileRoute = ProfileRouteImport.update({
   id: '/profile',
@@ -52,6 +53,11 @@ const MultiplayerRoomIdRoute = MultiplayerRoomIdRouteImport.update({
   path: '/$roomId',
   getParentRoute: () => MultiplayerRoute,
 } as any)
+const AnalysisGameIdRoute = AnalysisGameIdRouteImport.update({
+  id: '/analysis/$gameId',
+  path: '/analysis/$gameId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -60,6 +66,7 @@ export interface FileRoutesByFullPath {
   '/multiplayer': typeof MultiplayerRouteWithChildren
   '/play': typeof PlayRoute
   '/profile': typeof ProfileRoute
+  '/analysis/$gameId': typeof AnalysisGameIdRoute
   '/multiplayer/$roomId': typeof MultiplayerRoomIdRoute
 }
 export interface FileRoutesByTo {
@@ -69,6 +76,7 @@ export interface FileRoutesByTo {
   '/multiplayer': typeof MultiplayerRouteWithChildren
   '/play': typeof PlayRoute
   '/profile': typeof ProfileRoute
+  '/analysis/$gameId': typeof AnalysisGameIdRoute
   '/multiplayer/$roomId': typeof MultiplayerRoomIdRoute
 }
 export interface FileRoutesById {
@@ -79,6 +87,7 @@ export interface FileRoutesById {
   '/multiplayer': typeof MultiplayerRouteWithChildren
   '/play': typeof PlayRoute
   '/profile': typeof ProfileRoute
+  '/analysis/$gameId': typeof AnalysisGameIdRoute
   '/multiplayer/$roomId': typeof MultiplayerRoomIdRoute
 }
 export interface FileRouteTypes {
@@ -90,6 +99,7 @@ export interface FileRouteTypes {
     | '/multiplayer'
     | '/play'
     | '/profile'
+    | '/analysis/$gameId'
     | '/multiplayer/$roomId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -99,6 +109,7 @@ export interface FileRouteTypes {
     | '/multiplayer'
     | '/play'
     | '/profile'
+    | '/analysis/$gameId'
     | '/multiplayer/$roomId'
   id:
     | '__root__'
@@ -108,6 +119,7 @@ export interface FileRouteTypes {
     | '/multiplayer'
     | '/play'
     | '/profile'
+    | '/analysis/$gameId'
     | '/multiplayer/$roomId'
   fileRoutesById: FileRoutesById
 }
@@ -118,6 +130,7 @@ export interface RootRouteChildren {
   MultiplayerRoute: typeof MultiplayerRouteWithChildren
   PlayRoute: typeof PlayRoute
   ProfileRoute: typeof ProfileRoute
+  AnalysisGameIdRoute: typeof AnalysisGameIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -171,6 +184,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MultiplayerRoomIdRouteImport
       parentRoute: typeof MultiplayerRoute
     }
+    '/analysis/$gameId': {
+      id: '/analysis/$gameId'
+      path: '/analysis/$gameId'
+      fullPath: '/analysis/$gameId'
+      preLoaderRoute: typeof AnalysisGameIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -193,6 +213,7 @@ const rootRouteChildren: RootRouteChildren = {
   MultiplayerRoute: MultiplayerRouteWithChildren,
   PlayRoute: PlayRoute,
   ProfileRoute: ProfileRoute,
+  AnalysisGameIdRoute: AnalysisGameIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
