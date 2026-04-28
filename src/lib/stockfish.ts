@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-// Load worker script from npm package as a URL (Vite handles ?url)
-// stockfish.js v10 ships a single-file worker we can spawn directly.
-import stockfishWorkerUrl from "stockfish/src/stockfish.js?url";
+
+// Load Stockfish from CDN via a blob worker so Vite doesn't try to bundle
+// the npm package's Node-style entry point.
+const STOCKFISH_CDN = "https://cdn.jsdelivr.net/npm/stockfish.js@10.0.2/stockfish.js";
 
 export type EngineMove = { from: string; to: string; promotion?: string };
 
@@ -12,14 +13,11 @@ export function useStockfish() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    let w: Worker;
-    try {
-      w = new Worker(stockfishWorkerUrl);
-    } catch {
-      // Fallback: importScripts shim if direct worker construction is blocked
-      const blob = new Blob([`importScripts("${stockfishWorkerUrl}");`], { type: "application/javascript" });
-      w = new Worker(URL.createObjectURL(blob));
-    }
+    const blob = new Blob([`importScripts("${STOCKFISH_CDN}");`], {
+      type: "application/javascript",
+    });
+    const url = URL.createObjectURL(blob);
+    const w = new Worker(url);
     workerRef.current = w;
 
     w.onmessage = (e: MessageEvent) => {
@@ -50,6 +48,7 @@ export function useStockfish() {
 
     return () => {
       w.terminate();
+      URL.revokeObjectURL(url);
     };
   }, []);
 
