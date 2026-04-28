@@ -10,14 +10,20 @@ import { useStockfish } from "@/lib/stockfish";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { RotateCcw, Flag, Cpu, Loader2, Sparkles } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/play")({ component: PlayPage });
 
 const LEVELS = [
-  { label: "Easy", depth: 2 },
-  { label: "Medium", depth: 8 },
-  { label: "Hard", depth: 15 },
+  { label: "1", depth: 1 },
+  { label: "2", depth: 2 },
+  { label: "3", depth: 4 },
+  { label: "4", depth: 6 },
+  { label: "5", depth: 8 },
+  { label: "6", depth: 10 },
+  { label: "7", depth: 12 },
+  { label: "8", depth: 15 },
+  { label: "9", depth: 18 },
+  { label: "10", depth: 22 },
 ];
 
 function PlayPage() {
@@ -35,39 +41,13 @@ function PlayPage() {
   const [status, setStatus] = useState<string>("Your move");
   const [over, setOver] = useState(false);
   const savedRef = useRef(false);
-  const [analysisOpen, setAnalysisOpen] = useState(false);
-  const [analysing, setAnalysing] = useState(false);
-  const [analysis, setAnalysis] = useState<string>("");
+  const [savedGameId, setSavedGameId] = useState<string | null>(null);
 
-  async function analyseGame() {
-    const pgn = gameRef.current.pgn();
-    if (!pgn.trim()) {
-      toast.error("No moves to analyse yet.");
-      return;
-    }
-    setAnalysisOpen(true);
-    setAnalysing(true);
-    setAnalysis("");
-    try {
-      const { data, error } = await supabase.functions.invoke("analyse-game", {
-        body: { pgn },
-      });
-      if (error) throw error;
-      if ((data as any)?.error) throw new Error((data as any).error);
-      setAnalysis((data as any).analysis ?? "No analysis returned.");
-    } catch (e: any) {
-      const msg = e?.message ?? "Failed to analyse game";
-      setAnalysis("");
-      toast.error(msg);
-      if (msg.toLowerCase().includes("rate")) {
-        setAnalysis("Rate limit reached. Please try again in a moment.");
-      } else if (msg.toLowerCase().includes("credit") || msg.toLowerCase().includes("payment")) {
-        setAnalysis("AI credits exhausted. Add credits to your Lovable workspace.");
-      } else {
-        setAnalysis("Something went wrong. " + msg);
-      }
-    } finally {
-      setAnalysing(false);
+  function goToAnalysis() {
+    if (savedGameId) {
+      navigate({ to: "/analysis/$gameId", params: { gameId: savedGameId } });
+    } else {
+      toast.error("Game not saved yet.");
     }
   }
 
@@ -97,16 +77,21 @@ function PlayPage() {
     const pgn = gameRef.current.pgn();
     const movesCount = gameRef.current.history().length;
     try {
-      const { error: gErr } = await supabase.from("games").insert({
-        user_id: user.id,
-        result,
-        pgn,
-        player_color: playerColor,
-        moves_count: movesCount,
-        rating_change: ratingChange,
-        ai_level: LEVELS[levelIdx].depth,
-      });
+      const { data: inserted, error: gErr } = await supabase
+        .from("games")
+        .insert({
+          user_id: user.id,
+          result,
+          pgn,
+          player_color: playerColor,
+          moves_count: movesCount,
+          rating_change: ratingChange,
+          ai_level: LEVELS[levelIdx].depth,
+        })
+        .select("id")
+        .single();
       if (gErr) throw gErr;
+      if (inserted?.id) setSavedGameId(inserted.id);
       const { data: prof } = await supabase.from("profiles").select("rating").eq("id", user.id).single();
       if (prof) {
         await supabase.from("profiles").update({ rating: Math.max(100, prof.rating + ratingChange) }).eq("id", user.id);
@@ -196,6 +181,7 @@ function PlayPage() {
   function newGame(color: "white" | "black" = playerColor) {
     gameRef.current = new Chess();
     savedRef.current = false;
+    setSavedGameId(null);
     setSelectedSquare(null);
     setPlayerColor(color);
     setOver(false);
@@ -325,9 +311,9 @@ function PlayPage() {
               </Button>
             </div>
 
-            {over && (
-              <Button className="w-full" onClick={analyseGame} disabled={analysing}>
-                {analysing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+            {over && savedGameId && (
+              <Button className="w-full" onClick={goToAnalysis}>
+                <Sparkles className="w-4 h-4" />
                 Analyse game
               </Button>
             )}
@@ -339,25 +325,6 @@ function PlayPage() {
         </div>
       </main>
 
-      <Dialog open={analysisOpen} onOpenChange={setAnalysisOpen}>
-        <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-primary" /> Game analysis
-            </DialogTitle>
-            <DialogDescription>AI coach review of your last game.</DialogDescription>
-          </DialogHeader>
-          {analysing ? (
-            <div className="flex items-center gap-2 py-8 justify-center text-muted-foreground">
-              <Loader2 className="w-4 h-4 animate-spin" /> Analysing your moves…
-            </div>
-          ) : (
-            <div className="prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap text-sm leading-relaxed">
-              {analysis}
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
