@@ -28,7 +28,7 @@ function PlayPage() {
   const gameRef = useRef(new Chess());
   const [fen, setFen] = useState(gameRef.current.fen());
   const [playerColor, setPlayerColor] = useState<"white" | "black">("white");
-  const [levelIdx, setLevelIdx] = useState(2);
+  const [levelIdx, setLevelIdx] = useState(1);
   const [thinking, setThinking] = useState(false);
   const [status, setStatus] = useState<string>("Your move");
   const [over, setOver] = useState(false);
