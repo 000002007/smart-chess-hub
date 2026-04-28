@@ -14,11 +14,9 @@ import { RotateCcw, Flag, Cpu } from "lucide-react";
 export const Route = createFileRoute("/play")({ component: PlayPage });
 
 const LEVELS = [
-  { label: "Casual", depth: 2 },
-  { label: "Easy", depth: 4 },
-  { label: "Medium", depth: 8 },
+  { label: "Easy", depth: 1 },
+  { label: "Medium", depth: 5 },
   { label: "Hard", depth: 12 },
-  { label: "Expert", depth: 16 },
 ];
 
 function PlayPage() {
