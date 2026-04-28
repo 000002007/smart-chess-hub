@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Moon, Sun, LogOut, User as UserIcon, Crown } from "lucide-react";
+import { Moon, Sun, LogOut, User as UserIcon, Crown, Users } from "lucide-react";
 import { useTheme } from "@/lib/theme";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,11 @@ export function Header() {
         <nav className="flex items-center gap-1">
           <Link to="/play">
             <Button variant="ghost" size="sm">Play</Button>
+          </Link>
+          <Link to="/multiplayer">
+            <Button variant="ghost" size="sm">
+              <Users className="w-4 h-4" /> Multiplayer
+            </Button>
           </Link>
           {user && (
             <Link to="/profile">

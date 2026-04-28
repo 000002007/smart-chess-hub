@@ -11,8 +11,10 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as PlayRouteImport } from './routes/play'
+import { Route as MultiplayerRouteImport } from './routes/multiplayer'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as MultiplayerRoomIdRouteImport } from './routes/multiplayer.$roomId'
 
 const ProfileRoute = ProfileRouteImport.update({
   id: '/profile',
@@ -22,6 +24,11 @@ const ProfileRoute = ProfileRouteImport.update({
 const PlayRoute = PlayRouteImport.update({
   id: '/play',
   path: '/play',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MultiplayerRoute = MultiplayerRouteImport.update({
+  id: '/multiplayer',
+  path: '/multiplayer',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -34,37 +41,68 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MultiplayerRoomIdRoute = MultiplayerRoomIdRouteImport.update({
+  id: '/$roomId',
+  path: '/$roomId',
+  getParentRoute: () => MultiplayerRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/multiplayer': typeof MultiplayerRouteWithChildren
   '/play': typeof PlayRoute
   '/profile': typeof ProfileRoute
+  '/multiplayer/$roomId': typeof MultiplayerRoomIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/multiplayer': typeof MultiplayerRouteWithChildren
   '/play': typeof PlayRoute
   '/profile': typeof ProfileRoute
+  '/multiplayer/$roomId': typeof MultiplayerRoomIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/multiplayer': typeof MultiplayerRouteWithChildren
   '/play': typeof PlayRoute
   '/profile': typeof ProfileRoute
+  '/multiplayer/$roomId': typeof MultiplayerRoomIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/play' | '/profile'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/multiplayer'
+    | '/play'
+    | '/profile'
+    | '/multiplayer/$roomId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/play' | '/profile'
-  id: '__root__' | '/' | '/auth' | '/play' | '/profile'
+  to:
+    | '/'
+    | '/auth'
+    | '/multiplayer'
+    | '/play'
+    | '/profile'
+    | '/multiplayer/$roomId'
+  id:
+    | '__root__'
+    | '/'
+    | '/auth'
+    | '/multiplayer'
+    | '/play'
+    | '/profile'
+    | '/multiplayer/$roomId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
+  MultiplayerRoute: typeof MultiplayerRouteWithChildren
   PlayRoute: typeof PlayRoute
   ProfileRoute: typeof ProfileRoute
 }
@@ -85,6 +123,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PlayRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/multiplayer': {
+      id: '/multiplayer'
+      path: '/multiplayer'
+      fullPath: '/multiplayer'
+      preLoaderRoute: typeof MultiplayerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -99,15 +144,44 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/multiplayer/$roomId': {
+      id: '/multiplayer/$roomId'
+      path: '/$roomId'
+      fullPath: '/multiplayer/$roomId'
+      preLoaderRoute: typeof MultiplayerRoomIdRouteImport
+      parentRoute: typeof MultiplayerRoute
+    }
   }
 }
+
+interface MultiplayerRouteChildren {
+  MultiplayerRoomIdRoute: typeof MultiplayerRoomIdRoute
+}
+
+const MultiplayerRouteChildren: MultiplayerRouteChildren = {
+  MultiplayerRoomIdRoute: MultiplayerRoomIdRoute,
+}
+
+const MultiplayerRouteWithChildren = MultiplayerRoute._addFileChildren(
+  MultiplayerRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
+  MultiplayerRoute: MultiplayerRouteWithChildren,
   PlayRoute: PlayRoute,
   ProfileRoute: ProfileRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
