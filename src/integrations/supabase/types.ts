@@ -14,7 +14,66 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      games: {
+        Row: {
+          ai_level: number
+          created_at: string
+          id: string
+          moves_count: number
+          pgn: string
+          player_color: string
+          rating_change: number
+          result: Database["public"]["Enums"]["game_result"]
+          user_id: string
+        }
+        Insert: {
+          ai_level?: number
+          created_at?: string
+          id?: string
+          moves_count?: number
+          pgn: string
+          player_color: string
+          rating_change?: number
+          result: Database["public"]["Enums"]["game_result"]
+          user_id: string
+        }
+        Update: {
+          ai_level?: number
+          created_at?: string
+          id?: string
+          moves_count?: number
+          pgn?: string
+          player_color?: string
+          rating_change?: number
+          result?: Database["public"]["Enums"]["game_result"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          id: string
+          rating: number
+          updated_at: string
+          username: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          rating?: number
+          updated_at?: string
+          username: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          rating?: number
+          updated_at?: string
+          username?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +82,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      game_result: "win" | "loss" | "draw"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +209,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      game_result: ["win", "loss", "draw"],
+    },
   },
 } as const
