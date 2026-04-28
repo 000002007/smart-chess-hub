@@ -3,7 +3,10 @@ import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/Header";
-import { Trophy, Skull, Minus, Gamepad2, Percent, User as UserIcon } from "lucide-react";
+import { Trophy, Skull, Minus, Gamepad2, Percent, User as UserIcon, MapPin, Save, Crown } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import {
   LineChart,
   Line,
@@ -29,6 +32,8 @@ interface Game {
 interface Profile {
   username: string;
   rating: number;
+  city: string | null;
+  is_pro: boolean;
 }
 
 function ProfilePage() {
@@ -36,6 +41,8 @@ function ProfilePage() {
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [games, setGames] = useState<Game[]>([]);
+  const [cityInput, setCityInput] = useState("");
+  const [savingCity, setSavingCity] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/auth" });
@@ -45,7 +52,7 @@ function ProfilePage() {
     if (!user) return;
     (async () => {
       const [{ data: p }, { data: g }] = await Promise.all([
-        supabase.from("profiles").select("username, rating").eq("id", user.id).single(),
+        supabase.from("profiles").select("username, rating, city, is_pro").eq("id", user.id).single(),
         supabase
           .from("games")
           .select("*")
@@ -53,10 +60,27 @@ function ProfilePage() {
           .order("created_at", { ascending: false })
           .limit(100),
       ]);
-      if (p) setProfile(p);
+      if (p) {
+        setProfile(p as Profile);
+        setCityInput((p as Profile).city ?? "");
+      }
       if (g) setGames(g as Game[]);
     })();
   }, [user]);
+
+  async function saveCity() {
+    if (!user) return;
+    setSavingCity(true);
+    const value = cityInput.trim() || null;
+    const { error } = await supabase.from("profiles").update({ city: value }).eq("id", user.id);
+    setSavingCity(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    setProfile((prev) => (prev ? { ...prev, city: value } : prev));
+    toast.success("City updated");
+  }
 
   const wins = games.filter((g) => g.result === "win").length;
   const losses = games.filter((g) => g.result === "loss").length;

@@ -9,7 +9,8 @@ import { useTheme } from "@/lib/theme";
 import { useStockfish } from "@/lib/stockfish";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { RotateCcw, Flag, Cpu, Loader2 } from "lucide-react";
+import { RotateCcw, Flag, Cpu, Loader2, Sparkles } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/play")({ component: PlayPage });
 
@@ -33,6 +34,41 @@ function PlayPage() {
   const [status, setStatus] = useState<string>("Your move");
   const [over, setOver] = useState(false);
   const savedRef = useRef(false);
+  const [analysisOpen, setAnalysisOpen] = useState(false);
+  const [analysing, setAnalysing] = useState(false);
+  const [analysis, setAnalysis] = useState<string>("");
+
+  async function analyseGame() {
+    const pgn = gameRef.current.pgn();
+    if (!pgn.trim()) {
+      toast.error("No moves to analyse yet.");
+      return;
+    }
+    setAnalysisOpen(true);
+    setAnalysing(true);
+    setAnalysis("");
+    try {
+      const { data, error } = await supabase.functions.invoke("analyse-game", {
+        body: { pgn },
+      });
+      if (error) throw error;
+      if ((data as any)?.error) throw new Error((data as any).error);
+      setAnalysis((data as any).analysis ?? "No analysis returned.");
+    } catch (e: any) {
+      const msg = e?.message ?? "Failed to analyse game";
+      setAnalysis("");
+      toast.error(msg);
+      if (msg.toLowerCase().includes("rate")) {
+        setAnalysis("Rate limit reached. Please try again in a moment.");
+      } else if (msg.toLowerCase().includes("credit") || msg.toLowerCase().includes("payment")) {
+        setAnalysis("AI credits exhausted. Add credits to your Lovable workspace.");
+      } else {
+        setAnalysis("Something went wrong. " + msg);
+      }
+    } finally {
+      setAnalysing(false);
+    }
+  }
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/auth" });
@@ -236,12 +272,39 @@ function PlayPage() {
               </Button>
             </div>
 
+            {over && (
+              <Button className="w-full" onClick={analyseGame} disabled={analysing}>
+                {analysing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                Analyse game
+              </Button>
+            )}
+
             <Link to="/profile" className="block text-center text-sm text-muted-foreground hover:text-foreground">
               View your game history →
             </Link>
           </aside>
         </div>
       </main>
+
+      <Dialog open={analysisOpen} onOpenChange={setAnalysisOpen}>
+        <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-primary" /> Game analysis
+            </DialogTitle>
+            <DialogDescription>AI coach review of your last game.</DialogDescription>
+          </DialogHeader>
+          {analysing ? (
+            <div className="flex items-center gap-2 py-8 justify-center text-muted-foreground">
+              <Loader2 className="w-4 h-4 animate-spin" /> Analysing your moves…
+            </div>
+          ) : (
+            <div className="prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap text-sm leading-relaxed">
+              {analysis}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
