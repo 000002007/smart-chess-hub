@@ -9,14 +9,14 @@ import { useTheme } from "@/lib/theme";
 import { useStockfish } from "@/lib/stockfish";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { RotateCcw, Flag, Cpu } from "lucide-react";
+import { RotateCcw, Flag, Cpu, Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/play")({ component: PlayPage });
 
 const LEVELS = [
-  { label: "Easy", depth: 1 },
-  { label: "Medium", depth: 5 },
-  { label: "Hard", depth: 12 },
+  { label: "Easy", depth: 2 },
+  { label: "Medium", depth: 8 },
+  { label: "Hard", depth: 15 },
 ];
 
 function PlayPage() {
@@ -56,7 +56,7 @@ function PlayPage() {
   async function saveResult(result: "win" | "loss" | "draw") {
     if (savedRef.current || !user) return;
     savedRef.current = true;
-    const ratingChange = result === "win" ? 12 : result === "loss" ? -10 : 2;
+    const ratingChange = result === "win" ? 15 : result === "loss" ? -10 : 2;
     const pgn = gameRef.current.pgn();
     const movesCount = gameRef.current.history().length;
     try {
@@ -123,7 +123,7 @@ function PlayPage() {
     refresh();
     checkEnd();
     if (!gameRef.current.isGameOver()) {
-      setTimeout(() => makeAiMove(), 200);
+      setTimeout(() => makeAiMove(), 500);
     }
     return true;
   }
@@ -166,8 +166,16 @@ function PlayPage() {
       <main className="flex-1 max-w-6xl w-full mx-auto px-4 py-6 sm:py-10">
         <div className="grid lg:grid-cols-[1fr_320px] gap-6">
           <div>
-            <div className="aspect-square w-full max-w-[640px] mx-auto rounded-lg overflow-hidden border border-border shadow-sm">
+            <div className="relative aspect-square w-full max-w-[640px] mx-auto rounded-lg overflow-hidden border border-border shadow-sm">
               <Chessboard options={boardOptions} />
+              {thinking && (
+                <div className="absolute inset-0 flex items-center justify-center bg-background/40 backdrop-blur-[1px] pointer-events-none">
+                  <div className="flex items-center gap-2 px-3 py-2 rounded-full bg-card border border-border shadow-md text-sm">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Stockfish is thinking…
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
