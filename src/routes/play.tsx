@@ -14,11 +14,9 @@ import { RotateCcw, Flag, Cpu } from "lucide-react";
 export const Route = createFileRoute("/play")({ component: PlayPage });
 
 const LEVELS = [
-  { label: "Casual", depth: 2 },
-  { label: "Easy", depth: 4 },
-  { label: "Medium", depth: 8 },
+  { label: "Easy", depth: 1 },
+  { label: "Medium", depth: 5 },
   { label: "Hard", depth: 12 },
-  { label: "Expert", depth: 16 },
 ];
 
 function PlayPage() {
@@ -30,7 +28,7 @@ function PlayPage() {
   const gameRef = useRef(new Chess());
   const [fen, setFen] = useState(gameRef.current.fen());
   const [playerColor, setPlayerColor] = useState<"white" | "black">("white");
-  const [levelIdx, setLevelIdx] = useState(2);
+  const [levelIdx, setLevelIdx] = useState(1);
   const [thinking, setThinking] = useState(false);
   const [status, setStatus] = useState<string>("Your move");
   const [over, setOver] = useState(false);
@@ -184,7 +182,7 @@ function PlayPage() {
             <div className="rounded-lg border border-border bg-card p-4 space-y-3">
               <div>
                 <div className="text-xs uppercase tracking-wide text-muted-foreground mb-2">Difficulty</div>
-                <div className="grid grid-cols-5 gap-1">
+                <div className="grid grid-cols-3 gap-1">
                   {LEVELS.map((l, i) => (
                     <button
                       key={l.label}
