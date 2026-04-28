@@ -157,6 +157,7 @@ function PlayPage() {
     } catch {
       return false;
     }
+    setSelectedSquare(null);
     refresh();
     checkEnd();
     if (!gameRef.current.isGameOver()) {
@@ -165,9 +166,37 @@ function PlayPage() {
     return true;
   }
 
+  function onSquareClick({ square }: { square: string }) {
+    if (over || thinking) return;
+    const g = gameRef.current;
+    if (g.turn() !== playerColor[0]) return;
+    if (selectedSquare && selectedSquare !== square) {
+      // try to move
+      try {
+        const move = g.move({ from: selectedSquare, to: square, promotion: "q" });
+        if (move) {
+          setSelectedSquare(null);
+          refresh();
+          checkEnd();
+          if (!gameRef.current.isGameOver()) setTimeout(() => makeAiMove(), 500);
+          return;
+        }
+      } catch {
+        // fall through to selection
+      }
+    }
+    const piece = g.get(square as any);
+    if (piece && piece.color === playerColor[0]) {
+      setSelectedSquare(square);
+    } else {
+      setSelectedSquare(null);
+    }
+  }
+
   function newGame(color: "white" | "black" = playerColor) {
     gameRef.current = new Chess();
     savedRef.current = false;
+    setSelectedSquare(null);
     setPlayerColor(color);
     setOver(false);
     setStatus("Your move");
@@ -184,17 +213,40 @@ function PlayPage() {
     saveResult("loss");
   }
 
+  const squareStyles = useMemo(() => {
+    if (!selectedSquare) return {};
+    const g = gameRef.current;
+    const moves = g.moves({ square: selectedSquare as any, verbose: true }) as Array<{ to: string; captured?: string }>;
+    const styles: Record<string, React.CSSProperties> = {
+      [selectedSquare]: { background: "rgba(255, 217, 102, 0.45)" },
+    };
+    for (const m of moves) {
+      styles[m.to] = m.captured
+        ? {
+            background:
+              "radial-gradient(circle, transparent 0%, transparent 55%, rgba(0,0,0,0.35) 56%, rgba(0,0,0,0.35) 65%, transparent 66%)",
+          }
+        : {
+            background:
+              "radial-gradient(circle, rgba(0,0,0,0.28) 18%, transparent 22%)",
+          };
+    }
+    return styles;
+  }, [selectedSquare, fen]);
+
   const boardOptions = useMemo(
     () => ({
       position: fen,
       onPieceDrop,
+      onSquareClick,
+      squareStyles,
       boardOrientation: playerColor,
       darkSquareStyle: { backgroundColor: theme === "dark" ? "#779556" : "#b58863" },
       lightSquareStyle: { backgroundColor: theme === "dark" ? "#ebecd0" : "#f0d9b5" },
       id: "main-board",
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [fen, playerColor, theme, over, thinking],
+    [fen, playerColor, theme, over, thinking, squareStyles],
   );
 
   return (
