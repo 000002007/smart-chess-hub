@@ -28,6 +28,7 @@ function PlayPage() {
 
   const gameRef = useRef(new Chess());
   const [fen, setFen] = useState(gameRef.current.fen());
+  const [selectedSquare, setSelectedSquare] = useState<string | null>(null);
   const [playerColor, setPlayerColor] = useState<"white" | "black">("white");
   const [levelIdx, setLevelIdx] = useState(1);
   const [thinking, setThinking] = useState(false);
