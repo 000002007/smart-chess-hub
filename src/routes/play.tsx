@@ -181,6 +181,7 @@ function PlayPage() {
   function newGame(color: "white" | "black" = playerColor) {
     gameRef.current = new Chess();
     savedRef.current = false;
+    setSavedGameId(null);
     setSelectedSquare(null);
     setPlayerColor(color);
     setOver(false);
